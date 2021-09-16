@@ -23,7 +23,7 @@ const app = require('./app')
 config.config()
 const logger = new Logger().logger()
 const server = http.createServer(app)
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 8000
 server.listen(PORT)
 server.on('listening', () => {
   logger.info(`App started on port ${PORT}`)
