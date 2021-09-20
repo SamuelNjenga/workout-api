@@ -5,6 +5,7 @@ const RoomRoutes = require('./RoomRoutes')
 const AuthRoutes = require('./AuthRoutes')
 const EquipmentRoutes = require('./EquipmentRoutes')
 const ServiceTypeRoutes = require('./ServiceTypeRoutes')
+const MemberRegRoutes = require('./MemberRegistrationRoutes')
 
 const router = Router()
 
@@ -13,5 +14,6 @@ router.use('/rooms', RoomRoutes)
 router.use('/users', AuthRoutes)
 router.use('/equipment', EquipmentRoutes)
 router.use('/serviceTypes', ServiceTypeRoutes)
+router.use('/memberRegistrations', MemberRegRoutes)
 
 module.exports = router

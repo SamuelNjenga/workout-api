@@ -16,12 +16,6 @@ module.exports = {
           key: 'id'
         }
       },
-      daysRemaining: {
-        type: Sequelize.INTEGER
-      },
-      active: {
-        type: Sequelize.BOOLEAN
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

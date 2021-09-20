@@ -26,9 +26,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   MemberRegistration.init(
     {
-      userId: DataTypes.INTEGER,
-      daysRemaining: DataTypes.INTEGER,
-      active: DataTypes.BOOLEAN
+      userId: DataTypes.INTEGER
     },
     {
       sequelize,
