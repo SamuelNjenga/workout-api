@@ -18,6 +18,7 @@ exports.register = async (req, res, next) => {
       email: 'string|email',
       phoneNumber: 'string',
       password: 'string',
+      gender: 'string',
       roleId: 'integer'
     })
     if (!valid) return
@@ -27,6 +28,7 @@ exports.register = async (req, res, next) => {
       email: req.body.email,
       phoneNumber: req.body.phoneNumber,
       password: req.body.password,
+      gender: req.body.gender,
       roleId: req.body.roleId
     }
     let user = await authService.getUser({
@@ -96,6 +98,7 @@ exports.updateUser = async (req, res, next) => {
       email: 'string|email',
       phoneNumber: 'string',
       // password: 'string',
+      gender: 'string',
       roleId: 'integer'
     })
     if (!valid) return
@@ -107,6 +110,7 @@ exports.updateUser = async (req, res, next) => {
       phoneNumber: req.body.phoneNumber,
       // password: req.body.password,
       device: req.body.device,
+      gender: req.body.gender,
       //roleId: req.body.roleId
       //roleId: data.roleId || 3
       roleId: 3

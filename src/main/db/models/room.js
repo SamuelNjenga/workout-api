@@ -22,7 +22,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       label: DataTypes.STRING,
       size: DataTypes.FLOAT,
-      available: DataTypes.BOOLEAN
+      available: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
+      }
     },
     {
       sequelize,
