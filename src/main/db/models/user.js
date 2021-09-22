@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.TrainerProfile, {
         onDelete: 'cascade',
         foreignKey: {
-          name: 'trainerId',
+          name: 'userId',
           allowNull: false
         }
       })
