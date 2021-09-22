@@ -8,6 +8,8 @@ const ServiceTypeRoutes = require('./ServiceTypeRoutes')
 const MemberRegRoutes = require('./MemberRegistrationRoutes')
 const MemberPaymentRoutes = require('./MemberPaymentRoutes')
 const TrainerProfileRoutes = require('./TrainerProfileRoutes')
+const TrainingSessionRoutes = require('./TrainingSessionRoutes')
+
 
 const router = Router()
 
@@ -19,6 +21,7 @@ router.use('/serviceTypes', ServiceTypeRoutes)
 router.use('/memberRegistrations', MemberRegRoutes)
 router.use('/memberPayments', MemberPaymentRoutes)
 router.use('/trainerProfiles', TrainerProfileRoutes)
+router.use('/trainingSessions', TrainingSessionRoutes)
 
 
 module.exports = router
