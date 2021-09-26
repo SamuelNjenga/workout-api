@@ -67,6 +67,24 @@ exports.updateTrainingSession = async (req, res, next) => {
   }
 }
 
+exports.updateSession = async (req, res, next) => {
+  try {
+    const data = {
+      userId: req.body.userId,
+      newSession: req.body.newSession,
+      quantity: req.body.quantity
+    }
+    const response = await trainingSessionService.updateSession(
+      data.userId,
+      data.newSession,
+      data.quantity
+    )
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
 exports.deleteTrainingSession = async (req, res, next) => {
   try {
     const sessionId = req.params.id
@@ -85,9 +103,17 @@ exports.deleteTrainingSession = async (req, res, next) => {
 }
 
 exports.getTrainingSessions = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = trainingSessionService.getPagination(page, size)
+
   try {
     const sessions = await trainingSessionService.getTrainingSessions()
-    res.status(200).json(sessions)
+    const updatedSessions = trainingSessionService.getPagingData(
+      sessions,
+      page,
+      limit
+    )
+    res.status(200).json(updatedSessions)
   } catch (err) {
     res.json({
       message: err

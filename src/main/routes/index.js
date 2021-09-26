@@ -21,7 +21,7 @@ router.use('/equipment', EquipmentRoutes)
 router.use('/serviceTypes', ServiceTypeRoutes)
 router.use('/memberRegistrations', MemberRegRoutes)
 router.use('/memberPayments', MemberPaymentRoutes)
-router.use('/memberBookings', MemberBookingRoutes)
+router.use('/bookings', MemberBookingRoutes)
 router.use('/trainerProfiles', TrainerProfileRoutes)
 router.use('/trainingSessions', TrainingSessionRoutes)
 
