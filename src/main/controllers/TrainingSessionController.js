@@ -85,6 +85,48 @@ exports.updateSession = async (req, res, next) => {
   }
 }
 
+exports.endSession = async (req, res, next) => {
+  try {
+    const data = {
+      sessionId: req.body.sessionId
+    }
+    const response = await trainingSessionService.endSession(data.sessionId)
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.postponeSession = async (req, res, next) => {
+  try {
+    const data = {
+      sessionId: req.body.sessionId,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime
+    }
+    const response = await trainingSessionService.postponeSession(
+      data.sessionId,
+      data.startTime,
+      data.endTime
+    )
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.cancelSession = async (req, res, next) => {
+  try {
+    const data = {
+      sessionId: req.body.sessionId
+    }
+    const response = await trainingSessionService.cancelSession(data.sessionId)
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
 exports.deleteTrainingSession = async (req, res, next) => {
   try {
     const sessionId = req.params.id

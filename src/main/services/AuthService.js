@@ -21,8 +21,23 @@ exports.updateUser = async (data, root) => {
   return db.User.update(data, root)
 }
 
+exports.getPagination = (page, size) => {
+  const limit = size ? +size : 5
+  const offset = page ? page * limit : 0
+
+  return { limit, offset }
+}
+
+exports.getPagingData = (data, page, limit) => {
+  const { count: totalUsers, rows: users } = data
+  const currentPage = page ? +page : 0
+  const totalPages = Math.ceil(totalUsers / limit)
+
+  return { totalUsers, users, totalPages, currentPage }
+}
+
 exports.getUsers = async () => {
-  return db.User.findAll()
+  return db.User.findAndCountAll()
 }
 
 exports.getUser = async data => {

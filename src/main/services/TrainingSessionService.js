@@ -55,7 +55,7 @@ exports.updateSession = async (userId, newSession, quantity) => {
     if (session.maxMembers - session.membersSoFar < quantity) {
       throw new Error('This session is already full.')
     }
-    
+
     // Get order
     const bookingData = {
       memberId: userId,
@@ -78,6 +78,90 @@ exports.updateSession = async (userId, newSession, quantity) => {
     }
     await transaction.commit()
     return this.getSession(userId)
+  } catch (e) {
+    transaction.rollback()
+    throw e
+  }
+}
+
+exports.endSession = async sessionId => {
+  const transaction = await sequelize.transaction()
+  try {
+    // check if session in available
+    const session = await db.TrainingSession.findByPk(sessionId, {
+      transaction
+    })
+    if (!session) {
+      throw new Error('This session does not exist')
+    }
+    if (session.startTime < new Date()) {
+      throw new Error('This session has already elapsed.')
+    }
+    await session.update(
+      {
+        active: 0,
+        state: 'ENDED'
+      },
+      { transaction }
+    )
+    await transaction.commit()
+    //return this.getSession(userId)
+  } catch (e) {
+    transaction.rollback()
+    throw e
+  }
+}
+
+exports.postponeSession = async (sessionId, startTime, endTime) => {
+  const transaction = await sequelize.transaction()
+  try {
+    // check if session in available
+    const session = await db.TrainingSession.findByPk(sessionId, {
+      transaction
+    })
+    if (!session) {
+      throw new Error('This session does not exist')
+    }
+    if (session.startTime < new Date()) {
+      throw new Error('This session has already elapsed.')
+    }
+    await session.update(
+      {
+        startTime: startTime,
+        endTime: endTime
+      },
+      { transaction }
+    )
+    await transaction.commit()
+    //return this.getSession(userId)
+  } catch (e) {
+    transaction.rollback()
+    throw e
+  }
+}
+
+exports.cancelSession = async sessionId => {
+  const transaction = await sequelize.transaction()
+  try {
+    // check if session in available
+    const session = await db.TrainingSession.findByPk(sessionId, {
+      transaction
+    })
+    if (!session) {
+      throw new Error('This session does not exist')
+    }
+    if (session.startTime < new Date()) {
+      throw new Error('This session has already elapsed.')
+    }
+    await session.update(
+      {
+        active: 0,
+        state: 'CANCELLED'
+      },
+      { transaction }
+    )
+    await transaction.commit()
+    //return this.getSession(userId)
   } catch (e) {
     transaction.rollback()
     throw e

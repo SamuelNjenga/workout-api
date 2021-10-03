@@ -158,9 +158,16 @@ exports.deleteUser = async (req, res, next) => {
 }
 
 exports.getUsers = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = authService.getPagination(page, size)
   try {
     const users = await authService.getUsers()
-    res.status(200).json(users)
+    const updatedUsers = authService.getPagingData(
+      users,
+      page,
+      limit
+    )
+    res.status(200).json(updatedUsers)
   } catch (err) {
     res.json({
       message: err

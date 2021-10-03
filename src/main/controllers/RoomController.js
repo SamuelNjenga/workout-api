@@ -63,9 +63,14 @@ exports.deleteRoom = async (req, res, next) => {
 }
 
 exports.getRooms = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = roomService.getPagination(page, size)
+
   try {
     const rooms = await roomService.getRooms()
-    res.status(200).json(rooms)
+    const updatedRooms = roomService.getPagingData(rooms, page, limit)
+
+    res.status(200).json(updatedRooms)
   } catch (err) {
     res.json({
       message: err

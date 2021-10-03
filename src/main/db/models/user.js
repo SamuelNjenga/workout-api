@@ -29,13 +29,6 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false
         }
       })
-      User.hasMany(models.MemberPayment, {
-        onDelete: 'cascade',
-        foreignKey: {
-          name: 'userId',
-          allowNull: false
-        }
-      })
     }
   }
   User.init(

@@ -8,7 +8,8 @@ exports.createMember = async (req, res, next) => {
     })
     if (!valid) return
     const data = {
-      userId: req.body.userId
+      userId: req.body.userId,
+      active: req.body.active
     }
     await memberRegistrationService.createMemberRegistration(data)
     res.status(201).json(data)
@@ -25,7 +26,8 @@ exports.updateMember = async (req, res, next) => {
     })
     if (!valid) return
     const data = {
-      userId: req.body.userId
+      userId: req.body.userId,
+      active:req.body.active
     }
 
     const memberId = req.params.id

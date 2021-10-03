@@ -63,9 +63,17 @@ exports.deleteTrainerProfile = async (req, res, next) => {
 }
 
 exports.getTrainers = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = trainerProfileService.getPagination(page, size)
+
   try {
     const trainers = await trainerProfileService.getTrainerProfiles()
-    res.status(200).json(trainers)
+    const updatedTrainers = trainerProfileService.getPagingData(
+      trainers,
+      page,
+      limit
+    )
+    res.status(200).json(updatedTrainers)
   } catch (err) {
     res.json({
       message: err

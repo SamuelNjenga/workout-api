@@ -22,11 +22,19 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false
         }
       })
+      MemberRegistration.hasMany(models.MemberPayment, {
+        onDelete: 'cascade',
+        foreignKey: {
+          name: 'memberId',
+          allowNull: false
+        }
+      })
     }
   }
   MemberRegistration.init(
     {
-      userId: DataTypes.INTEGER
+      userId: DataTypes.INTEGER,
+      status: DataTypes.STRING
     },
     {
       sequelize,

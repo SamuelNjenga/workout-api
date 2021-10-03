@@ -11,7 +11,6 @@ const MemberBookingRoutes = require('./MemberBookingRoutes')
 const TrainerProfileRoutes = require('./TrainerProfileRoutes')
 const TrainingSessionRoutes = require('./TrainingSessionRoutes')
 
-
 const router = Router()
 
 router.use('/roles', RoleRoutes)

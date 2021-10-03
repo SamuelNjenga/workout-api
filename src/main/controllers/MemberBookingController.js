@@ -67,9 +67,17 @@ exports.deleteMemberBooking = async (req, res, next) => {
 }
 
 exports.getMemberBookings = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = memberBookingService.getPagination(page, size)
+
   try {
     const bookings = await memberBookingService.getMemberBookings()
-    res.status(200).json(bookings)
+    const updatedBookings = memberBookingService.getPagingData(
+      bookings,
+      page,
+      limit
+    )
+    res.status(200).json(updatedBookings)
   } catch (err) {
     res.json({
       message: err

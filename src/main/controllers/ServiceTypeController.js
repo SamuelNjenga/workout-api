@@ -63,9 +63,17 @@ exports.deleteServiceType = async (req, res, next) => {
 }
 
 exports.getServiceTypes = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = serviceTypeService.getPagination(page, size)
+
   try {
     const serviceTypes = await serviceTypeService.getServiceTypes()
-    res.status(200).json(serviceTypes)
+    const updatedServiceTypes = serviceTypeService.getPagingData(
+      serviceTypes,
+      page,
+      limit
+    )
+    res.status(200).json(updatedServiceTypes)
   } catch (err) {
     res.json({
       message: err

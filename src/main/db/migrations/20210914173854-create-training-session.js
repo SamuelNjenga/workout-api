@@ -31,6 +31,9 @@ module.exports = {
       endTime: {
         type: Sequelize.DATE
       },
+      state: {
+        type: Sequelize.STRING
+      },
       roomId: {
         type: Sequelize.INTEGER,
         allowNull: false,

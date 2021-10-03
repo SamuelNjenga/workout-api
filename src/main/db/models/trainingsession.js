@@ -45,7 +45,8 @@ module.exports = (sequelize, DataTypes) => {
       startTime: DataTypes.DATE,
       endTime: DataTypes.DATE,
       roomId: DataTypes.INTEGER,
-      trainerId: DataTypes.INTEGER
+      trainerId: DataTypes.INTEGER,
+      state: DataTypes.STRING
     },
     {
       sequelize,

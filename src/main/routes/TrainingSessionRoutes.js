@@ -4,6 +4,9 @@ const trainingSessionController = require('../controllers/TrainingSessionControl
 const router = Router()
 
 router.post('/', trainingSessionController.createTrainingSession)
+router.post('/end', trainingSessionController.endSession)
+router.post('/postpone', trainingSessionController.postponeSession)
+router.post('/cancel', trainingSessionController.cancelSession)
 router.get('/', trainingSessionController.getTrainingSessions)
 router.delete('/:id', trainingSessionController.deleteTrainingSession)
 router.put('/:id', trainingSessionController.updateTrainingSession)

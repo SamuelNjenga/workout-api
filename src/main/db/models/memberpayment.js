@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate (models) {
       // define association here
-      MemberPayment.belongsTo(models.User, {
+      MemberPayment.belongsTo(models.MemberRegistration, {
         foreignKey: {
-          name: 'userId',
+          name: 'memberId',
           allowNull: false
         }
       })
@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   MemberPayment.init(
     {
-      userId: DataTypes.INTEGER,
+      memberId: DataTypes.INTEGER,
       amount: DataTypes.FLOAT,
       from: DataTypes.DATE,
       to: DataTypes.DATE
