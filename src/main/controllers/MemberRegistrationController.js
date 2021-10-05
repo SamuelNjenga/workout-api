@@ -27,7 +27,7 @@ exports.updateMember = async (req, res, next) => {
     if (!valid) return
     const data = {
       userId: req.body.userId,
-      active:req.body.active
+      active: req.body.active
     }
 
     const memberId = req.params.id
@@ -42,6 +42,35 @@ exports.updateMember = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.activateMember = async (req, res, next) => {
+  try {
+    const data = {
+      memberId: req.body.memberId
+    }
+    const response = await memberRegistrationService.activateMember(
+      data.memberId
+    )
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.diactivateMember = async (req, res, next) => {
+  try {
+    const data = {
+      memberId: req.body.memberId
+    }
+    const response = await memberRegistrationService.diactivateMember(
+      data.memberId
+    )
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
 
 exports.deleteMember = async (req, res, next) => {
   try {
@@ -61,9 +90,16 @@ exports.deleteMember = async (req, res, next) => {
 }
 
 exports.getMembers = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = memberRegistrationService.getPagination(page, size)
   try {
     const members = await memberRegistrationService.getMembers()
-    res.status(200).json(members)
+    const updatedMembers = memberRegistrationService.getPagingData(
+      members,
+      page,
+      limit
+    )
+    res.status(200).json(updatedMembers)
   } catch (err) {
     res.json({
       message: err

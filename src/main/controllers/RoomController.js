@@ -23,8 +23,7 @@ exports.createRoom = async (req, res, next) => {
 exports.updateRoom = async (req, res, next) => {
   try {
     const valid = await ReqValidator.validate(req, res, {
-      label: 'required|string',
-      size: 'required'
+      label: 'string'
     })
     if (!valid) return
     const data = {
