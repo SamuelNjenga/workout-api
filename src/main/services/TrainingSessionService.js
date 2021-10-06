@@ -104,6 +104,16 @@ exports.endSession = async sessionId => {
       },
       { transaction }
     )
+    const roomId = session.id
+    const room = await db.Room.findByPk(roomId, {
+      transaction
+    })
+    await room.update(
+      {
+        available: 1
+      },
+      { transaction }
+    )
     await transaction.commit()
     //return this.getSession(userId)
   } catch (e) {
