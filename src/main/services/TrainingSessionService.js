@@ -1,7 +1,51 @@
 const db = require('../db/models/index')
 const { sequelize } = require('../db/models/index')
+const moment = require('moment')
 
 exports.createTrainingSession = async data => {
+  const sessions = await db.TrainingSession.findAll({
+    include: [{ model: db.Room }]
+  })
+  for (let i = 0; i < sessions.length; i++) {
+    console.log('S LENGTH', sessions.length)
+    console.log('Session  Start Time', sessions[i].startTime, data.startTime)
+
+    if (
+      moment(sessions[i].startTime).format() ===
+        moment(data.startTime).format() &&
+      sessions[i].roomId === +data.roomId &&
+      sessions[i].Room.available === false
+    ) {
+      throw new Error('This room is in use between ')
+    }
+    if (
+      moment(data.endTime).format() >= moment(sessions[i].startTime).format() &&
+      moment(data.endTime).format() <= moment(sessions[i].endTime).format() &&
+      sessions[i].roomId === +data.roomId &&
+      sessions[i].Room.available === false
+    ) {
+      throw new Error('This room is in use between 1')
+    }
+    if (
+      moment(data.startTime).format() >=
+        moment(sessions[i].startTime).format() &&
+      moment(data.startTime).format() <= moment(sessions[i].endTime).format() &&
+      sessions[i].roomId === +data.roomId &&
+      sessions[i].Room.available === false
+    ) {
+      throw new Error('This room is in use between 2')
+    }
+  }
+
+  let room = await db.Room.findOne({
+    where: { id: data.roomId }
+  })
+  if (room) {
+    await room.update({
+      available: false
+    })
+  }
+
   return db.TrainingSession.create(data)
 }
 
@@ -170,6 +214,17 @@ exports.cancelSession = async sessionId => {
       },
       { transaction }
     )
+    const roomId = session.id
+    const room = await db.Room.findByPk(roomId, {
+      transaction
+    })
+    await room.update(
+      {
+        available: 1
+      },
+      { transaction }
+    )
+
     await transaction.commit()
     //return this.getSession(userId)
   } catch (e) {

@@ -6,7 +6,6 @@ exports.createTrainingSession = async (req, res, next) => {
     const valid = await ReqValidator.validate(req, res, {
       serviceId: 'required|integer',
       maxMembers: 'required|integer',
-      membersSoFar: 'required|integer',
       startTime: 'required',
       endTime: 'required',
       roomId: 'required|integer',
