@@ -9,7 +9,8 @@ exports.createTrainingSession = async (req, res, next) => {
       startTime: 'required',
       endTime: 'required',
       roomId: 'required|integer',
-      trainerId: 'required|integer'
+      trainerId: 'required|integer',
+      image: 'string'
     })
     if (!valid) return
     const data = {
@@ -20,13 +21,15 @@ exports.createTrainingSession = async (req, res, next) => {
       endTime: req.body.endTime,
       roomId: req.body.roomId,
       active: req.body.active,
-      trainerId: req.body.trainerId
+      trainerId: req.body.trainerId,
+      image: req.body.image
     }
     await trainingSessionService.createTrainingSession(data)
     res.status(201).json(data)
   } catch (err) {
-    console.log(err)
-    next(err)
+    res.status(500).json({ message: err.message })
+    console.error('Err', err.message)
+    next({ message: err.message })
   }
 }
 
@@ -39,7 +42,8 @@ exports.updateTrainingSession = async (req, res, next) => {
       startTime: 'required',
       endTime: 'required',
       roomId: 'required|integer',
-      trainerId: 'required|integer'
+      trainerId: 'required|integer',
+      image: 'string'
     })
     if (!valid) return
     const data = {
@@ -50,7 +54,8 @@ exports.updateTrainingSession = async (req, res, next) => {
       endTime: req.body.endTime,
       roomId: req.body.roomId,
       active: req.body.active,
-      trainerId: req.body.trainerId
+      trainerId: req.body.trainerId,
+      image: req.body.image
     }
 
     const sessionId = req.params.id

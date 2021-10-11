@@ -34,6 +34,9 @@ module.exports = {
       state: {
         type: Sequelize.STRING
       },
+      image: {
+        type: Sequelize.STRING
+      },
       roomId: {
         type: Sequelize.INTEGER,
         allowNull: false,

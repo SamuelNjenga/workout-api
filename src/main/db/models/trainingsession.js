@@ -46,7 +46,8 @@ module.exports = (sequelize, DataTypes) => {
       endTime: DataTypes.DATE,
       roomId: DataTypes.INTEGER,
       trainerId: DataTypes.INTEGER,
-      state: DataTypes.STRING
+      state: DataTypes.STRING,
+      image: DataTypes.STRING
     },
     {
       sequelize,
