@@ -24,14 +24,12 @@ exports.updateServiceType = async (req, res, next) => {
   try {
     const valid = await ReqValidator.validate(req, res, {
       name: 'required|string',
-      description: 'string',
-      image: 'string'
+      description: 'string'
     })
     if (!valid) return
     const data = {
       name: req.body.name,
-      description: req.body.description,
-      image: req.body.image
+      description: req.body.description
     }
 
     const serviceTypeId = req.params.id

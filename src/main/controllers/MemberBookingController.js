@@ -1,5 +1,6 @@
 const memberBookingService = require('../services/MemberBookingService')
 const ReqValidator = require('../utils/validator')
+const { sequelize } = require('../db/models/index')
 
 exports.createMemberBooking = async (req, res, next) => {
   try {
@@ -82,6 +83,22 @@ exports.getMemberBookings = async (req, res, next) => {
     res.json({
       message: err
     })
+    next(err)
+  }
+}
+
+exports.getBookingHistory = async (req, res, next) => {
+  const transaction = await sequelize.transaction()
+  try {
+    const userId = req.params.id
+    const response = await memberBookingService.getBookingHistory(
+      userId,
+      transaction
+    )
+    await transaction.commit()
+    res.status(200).json(response)
+  } catch (err) {
+    transaction.rollback()
     next(err)
   }
 }

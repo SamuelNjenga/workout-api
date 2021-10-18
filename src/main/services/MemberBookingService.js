@@ -30,3 +30,12 @@ exports.getMemberBookings = async () => {
 exports.deleteMemberBooking = async data => {
   return db.MemberBooking.destroy(data)
 }
+
+exports.getBookingHistory = async userId => {
+  return db.MemberBooking.findAll({
+    where: {
+      memberId: userId
+    },
+    order: [['updatedAt', 'DESC']]
+  })
+}

@@ -9,6 +9,28 @@ exports.updateMemberRegistration = async (data, root) => {
   return db.MemberRegistration.update(data, root)
 }
 
+exports.returnMember = async userId => {
+  const transaction = await sequelize.transaction()
+  try {
+    // check if session in available
+    const member = await db.MemberRegistration.findOne({
+      where: { userId: userId },
+      transaction
+    })
+    if (!member) {
+      throw new Error('This member does not exist')
+    }
+    if (member.status !== 'Active') {
+      throw new Error('This member is not active.')
+    }
+    await transaction.commit()
+    return member.id
+  } catch (e) {
+    transaction.rollback()
+    throw e
+  }
+}
+
 exports.activateMember = async memberId => {
   const transaction = await sequelize.transaction()
   try {
@@ -39,7 +61,6 @@ exports.activateMember = async memberId => {
 exports.diactivateMember = async memberId => {
   const transaction = await sequelize.transaction()
   try {
-    
     // check if session in available
     const member = await db.MemberRegistration.findByPk(memberId, {
       transaction

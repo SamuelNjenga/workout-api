@@ -1,4 +1,5 @@
 const authService = require('../services/AuthService')
+const memberRegService = require('../services/MemberRegistrationService')
 const ReqValidator = require('../utils/validator')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
@@ -162,11 +163,7 @@ exports.getUsers = async (req, res, next) => {
   const { limit, offset } = authService.getPagination(page, size)
   try {
     const users = await authService.getUsers()
-    const updatedUsers = authService.getPagingData(
-      users,
-      page,
-      limit
-    )
+    const updatedUsers = authService.getPagingData(users, page, limit)
     res.status(200).json(updatedUsers)
   } catch (err) {
     res.json({
@@ -206,12 +203,14 @@ exports.login = async (req, res, next) => {
         id: user.id
       }
     })
+    const memberId = await memberRegService.returnMember(user.id)
     res.status(200).json({
       data: {
         email: user.email,
         roleId: user.roleId,
         firstName: user.firstName,
-        id: user.id
+        id: user.id,
+        memberId
       },
       accessToken
     })
