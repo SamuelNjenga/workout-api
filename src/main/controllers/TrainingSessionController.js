@@ -1,5 +1,6 @@
 const trainingSessionService = require('../services/TrainingSessionService')
 const ReqValidator = require('../utils/validator')
+const db = require('../db/models')
 
 exports.createTrainingSession = async (req, res, next) => {
   try {
@@ -151,19 +152,19 @@ exports.deleteTrainingSession = async (req, res, next) => {
 exports.getTrainingSessions = async (req, res, next) => {
   const { page, size } = req.query
   const { limit, offset } = trainingSessionService.getPagination(page, size)
-
-  try {
-    const sessions = await trainingSessionService.getTrainingSessions()
-    const updatedSessions = trainingSessionService.getPagingData(
-      sessions,
-      page,
-      limit
-    )
-    res.status(200).json(updatedSessions)
-  } catch (err) {
-    res.json({
-      message: err
+  db.TrainingSession.findAndCountAll({
+    limit,
+    offset
+  })
+    .then(data => {
+      const response = trainingSessionService.getPagingData(data, page, limit)
+      res.status(200).json(response)
     })
-    next(err)
-  }
+    .catch(err => {
+      res.status(500).send({
+        message:
+          'Server error occurred while retrieving the wishlists.Try again.'
+      })
+      next(err)
+    })
 }

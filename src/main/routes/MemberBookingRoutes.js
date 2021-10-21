@@ -6,6 +6,7 @@ const router = Router()
 
 router.post('/', memberBookingController.createMemberBooking)
 router.post('/book', trainingSessionController.updateSession)
+router.post('/cancel', memberBookingController.cancelBooking)
 router.get('/', memberBookingController.getMemberBookings)
 router.get('/:id', memberBookingController.getBookingHistory)
 router.delete('/:id', memberBookingController.deleteMemberBooking)

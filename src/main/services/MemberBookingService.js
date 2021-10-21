@@ -1,4 +1,5 @@
 const db = require('../db/models/index')
+const { sequelize } = require('../db/models/index')
 
 exports.createMemberBooking = async data => {
   return db.MemberBooking.create(data)
@@ -31,11 +32,43 @@ exports.deleteMemberBooking = async data => {
   return db.MemberBooking.destroy(data)
 }
 
-exports.getBookingHistory = async userId => {
-  return db.MemberBooking.findAll({
+exports.getBookingHistory = async memberId => {
+  return db.MemberBooking.findAndCountAll({
     where: {
-      memberId: userId
+      memberId: memberId
     },
     order: [['updatedAt', 'DESC']]
   })
 }
+
+// exports.cancelBooking = async bookingId => {
+//   const transaction = await sequelize.transaction()
+//   try {
+//     // check if session in available
+//     const session = await db.MemberBooking.findOne({
+//       where: {
+//         id: bookingId
+//       },
+//       include: [{ model: db.TrainingSession }],
+//       transaction
+//     })
+//     if (!session) {
+//       throw new Error('This session does not exist')
+//     }
+//     // if (session.TrainingSession.startTime < new Date()) {
+//     //   throw new Error('This session has already elapsed.')
+//     // }
+//     await session.update(
+//       {
+//         status: 'CANCELLED'
+//       },
+//       { transaction }
+//     )
+
+//     await transaction.commit()
+//     //return this.getSession(userId)
+//   } catch (e) {
+//     transaction.rollback()
+//     throw e
+//   }
+// }

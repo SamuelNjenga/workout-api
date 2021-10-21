@@ -1,5 +1,6 @@
 const memberBookingService = require('../services/MemberBookingService')
 const ReqValidator = require('../utils/validator')
+const db = require('../db/models')
 const { sequelize } = require('../db/models/index')
 
 exports.createMemberBooking = async (req, res, next) => {
@@ -88,17 +89,88 @@ exports.getMemberBookings = async (req, res, next) => {
 }
 
 exports.getBookingHistory = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = memberBookingService.getPagination(page, size)
+  const memberId = req.params.id
+  db.MemberBooking.findAndCountAll({
+    where: {
+      memberId: memberId
+    },
+    order: [['updatedAt', 'DESC']],
+    limit,
+    offset
+  })
+    .then(data => {
+      const response = memberBookingService.getPagingData(data, page, limit)
+      res.status(200).json(response)
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          'Server error occurred while retrieving the wishlists.Try again.'
+      })
+      next(err)
+    })
+}
+
+exports.cancelBooking = async (req, res, next) => {
   const transaction = await sequelize.transaction()
+  const { page, size } = req.query
+  const { limit, offset } = memberBookingService.getPagination(page, size)
+
   try {
-    const userId = req.params.id
-    const response = await memberBookingService.getBookingHistory(
-      userId,
+    const data = {
+      bookingId: req.body.bookingId
+    }
+
+    // check if session in available
+    const session = await db.MemberBooking.findOne({
+      where: {
+        id: data.bookingId
+      },
+      include: [{ model: db.TrainingSession }],
       transaction
+    })
+    if (!session) {
+      throw new Error('This session does not exist')
+    }
+    // if (session.TrainingSession.startTime < new Date()) {
+    //   throw new Error('This session has already elapsed.')
+    // }
+    await session.update(
+      {
+        status: 'CANCELLED'
+      },
+      { transaction }
     )
+
     await transaction.commit()
-    res.status(200).json(response)
+
+    db.MemberBooking.findAndCountAll({
+      where: {
+        memberId: session.memberId
+      },
+      order: [['updatedAt', 'DESC']],
+      limit,
+      offset
+    })
+      .then(data => {
+        const response = memberBookingService.getPagingData(data, page, limit)
+        res.status(200).json(response)
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            'Server error occurred while retrieving the wishlists.Try again.'
+        })
+        next(err)
+      })
+
+    //return this.getSession(userId)
+
+    // const response = await memberBookingService.cancelBooking(data.bookingId)
+    // res.status(200).json(response)
   } catch (err) {
-    transaction.rollback()
     next(err)
   }
 }
