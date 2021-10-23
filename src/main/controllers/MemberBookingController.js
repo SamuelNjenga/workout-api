@@ -96,7 +96,7 @@ exports.getBookingHistory = async (req, res, next) => {
     where: {
       memberId: memberId
     },
-    order: [['updatedAt', 'DESC']],
+    order: [['id', 'DESC']],
     limit,
     offset
   })
@@ -115,8 +115,9 @@ exports.getBookingHistory = async (req, res, next) => {
 
 exports.cancelBooking = async (req, res, next) => {
   const transaction = await sequelize.transaction()
-  const { page, size } = req.query
-  const { limit, offset } = memberBookingService.getPagination(page, size)
+  const { size } = req.query
+  const pageId = req.body.page
+  const { limit, offset } = memberBookingService.getPagination(pageId, size)
 
   try {
     const data = {
@@ -134,9 +135,7 @@ exports.cancelBooking = async (req, res, next) => {
     if (!session) {
       throw new Error('This session does not exist')
     }
-    // if (session.TrainingSession.startTime < new Date()) {
-    //   throw new Error('This session has already elapsed.')
-    // }
+    
     await session.update(
       {
         status: 'CANCELLED'
@@ -150,12 +149,12 @@ exports.cancelBooking = async (req, res, next) => {
       where: {
         memberId: session.memberId
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['id', 'DESC']],
       limit,
       offset
     })
       .then(data => {
-        const response = memberBookingService.getPagingData(data, page, limit)
+        const response = memberBookingService.getPagingData(data, pageId, limit)
         res.status(200).json(response)
       })
       .catch(err => {
@@ -165,11 +164,6 @@ exports.cancelBooking = async (req, res, next) => {
         })
         next(err)
       })
-
-    //return this.getSession(userId)
-
-    // const response = await memberBookingService.cancelBooking(data.bookingId)
-    // res.status(200).json(response)
   } catch (err) {
     next(err)
   }
