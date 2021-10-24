@@ -28,6 +28,14 @@ exports.getMemberBookings = async () => {
   return db.MemberBooking.findAndCountAll()
 }
 
+exports.getAllMemberBookings = async memberId => {
+  return db.MemberBooking.findAll({
+    where: {
+      memberId: memberId
+    }
+  })
+}
+
 exports.deleteMemberBooking = async data => {
   return db.MemberBooking.destroy(data)
 }

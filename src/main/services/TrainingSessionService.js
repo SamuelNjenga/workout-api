@@ -194,6 +194,26 @@ exports.postponeSession = async (sessionId, startTime, endTime) => {
   }
 }
 
+exports.bookingCheck = async (id, memberId) => {
+  try {
+    // check if session in available
+    const session = await db.MemberBooking.findAll({
+      where: { memberId: memberId, sessionId: id, status: 'BOOKED' }
+    })
+    if (session === undefined || session.length == 0) {
+      console.log('FALSE')
+      console.log(session)
+      return false
+    } else {
+      console.log('TRUE')
+      console.log(session)
+      return true
+    }
+  } catch (e) {
+    throw e
+  }
+}
+
 exports.cancelSession = async sessionId => {
   const transaction = await sequelize.transaction()
   try {

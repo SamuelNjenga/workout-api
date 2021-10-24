@@ -120,6 +120,22 @@ exports.postponeSession = async (req, res, next) => {
   }
 }
 
+exports.bookingCheck = async (req, res, next) => {
+  try {
+    const data = {
+      id: req.body.id,
+      memberId: req.body.memberId
+    }
+    const response = await trainingSessionService.bookingCheck(
+      data.id,
+      data.memberId
+    )
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
 exports.cancelSession = async (req, res, next) => {
   try {
     const data = {

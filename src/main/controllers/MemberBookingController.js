@@ -113,6 +113,19 @@ exports.getBookingHistory = async (req, res, next) => {
     })
 }
 
+exports.getAllMemberBookings = async (req, res, next) => {
+  const memberId = req.params.id
+  try {
+    const bookings = await memberBookingService.getAllMemberBookings(memberId)
+    res.status(200).json(bookings)
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}
+
 exports.cancelBooking = async (req, res, next) => {
   const transaction = await sequelize.transaction()
   const { size } = req.query
@@ -135,7 +148,7 @@ exports.cancelBooking = async (req, res, next) => {
     if (!session) {
       throw new Error('This session does not exist')
     }
-    
+
     await session.update(
       {
         status: 'CANCELLED'

@@ -9,6 +9,7 @@ router.post('/book', trainingSessionController.updateSession)
 router.post('/cancel', memberBookingController.cancelBooking)
 router.get('/', memberBookingController.getMemberBookings)
 router.get('/:id', memberBookingController.getBookingHistory)
+router.get('/all/:id', memberBookingController.getAllMemberBookings)
 router.delete('/:id', memberBookingController.deleteMemberBooking)
 router.put('/:id', memberBookingController.updateMemberBooking)
 
