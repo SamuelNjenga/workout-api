@@ -30,3 +30,12 @@ exports.getServiceTypes = async () => {
 exports.deleteServiceType = async data => {
   return db.ServiceType.destroy(data)
 }
+
+exports.getSessionsPerCategoryBasedOnName = async name => {
+  return db.ServiceType.findAndCountAll({
+    where: {
+      name: name
+    },
+    include: [{ model: db.TrainingSession }]
+  })
+}

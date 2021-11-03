@@ -20,10 +20,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       active: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
       },
       membersSoFar: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       startTime: {
         type: Sequelize.DATE
@@ -32,10 +34,13 @@ module.exports = {
         type: Sequelize.DATE
       },
       state: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: 'ACTIVE'
       },
       image: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true
       },
       roomId: {
         type: Sequelize.INTEGER,

@@ -25,7 +25,9 @@ module.exports = {
         }
       },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'BOOKED'
       },
       createdAt: {
         allowNull: false,

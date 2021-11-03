@@ -1,4 +1,5 @@
 const trainingSessionService = require('../services/TrainingSessionService')
+const memberBookingService = require('../services/MemberBookingService')
 const ReqValidator = require('../utils/validator')
 const db = require('../db/models')
 
@@ -25,6 +26,7 @@ exports.createTrainingSession = async (req, res, next) => {
       trainerId: req.body.trainerId,
       image: req.body.image
     }
+    console.log(data.startTime)
     await trainingSessionService.createTrainingSession(data)
     res.status(201).json(data)
   } catch (err) {
@@ -73,18 +75,43 @@ exports.updateTrainingSession = async (req, res, next) => {
 }
 
 exports.updateSession = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = memberBookingService.getPagination(page, size)
+
   try {
     const data = {
       userId: req.body.userId,
       newSession: req.body.newSession,
       quantity: req.body.quantity
     }
-    const response = await trainingSessionService.updateSession(
+
+    await trainingSessionService.updateSession(
       data.userId,
       data.newSession,
       data.quantity
     )
-    res.status(200).json(response)
+
+    const response = await db.MemberBooking.findAll({
+      where: {
+        memberId: data.userId
+      }
+    })
+
+    //res.status(200).json(response)
+
+    const dataOne = await db.MemberBooking.findAndCountAll({
+      where: {
+        memberId: data.userId
+      },
+      order: [['id', 'DESC']],
+      limit,
+      offset
+    })
+
+    const response2 = memberBookingService.getPagingData(dataOne, page, limit)
+    res.status(200).json({ response, response2 })
+
+    console.log('Hey')
   } catch (err) {
     next(err)
   }
@@ -183,4 +210,20 @@ exports.getTrainingSessions = async (req, res, next) => {
       })
       next(err)
     })
+}
+
+exports.getAdminTrainingSessions = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = trainingSessionService.getPagination(page, size)
+
+  try {
+    const sessions = await trainingSessionService.getTrainingSessions()
+    const response = trainingSessionService.getPagingData(sessions, page, limit)
+    res.status(200).json(response)
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
 }

@@ -1,5 +1,6 @@
 const serviceTypeService = require('../services/ServiceTypeService')
 const ReqValidator = require('../utils/validator')
+const db = require('../db/models')
 
 exports.createServiceType = async (req, res, next) => {
   try {
@@ -80,4 +81,27 @@ exports.getServiceTypes = async (req, res, next) => {
     })
     next(err)
   }
+}
+
+exports.getSessionsPerCategoryBasedOnName = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = serviceTypeService.getPagination(page, size)
+
+  db.ServiceType.findAndCountAll({
+    where: { name: req.params.name },
+    limit,
+    offset,
+    include: [{ model: db.TrainingSession }],
+    subQuery: false
+  })
+    .then(data => {
+      const sessions = serviceTypeService.getPagingData(data, page, limit)
+      res.status(200).json(sessions)
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: 'An error occurred while retrieving sessions.'
+      })
+      next(err)
+    })
 }

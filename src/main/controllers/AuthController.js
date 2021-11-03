@@ -216,7 +216,7 @@ exports.login = async (req, res, next) => {
     })
   } catch (error) {
     res.status(401).json({
-      message: 'Incorrect Credentials'
+      message: 'This member does not have an existing account'
     })
     next(error)
   }
