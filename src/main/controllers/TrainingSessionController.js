@@ -3,6 +3,9 @@ const memberBookingService = require('../services/MemberBookingService')
 const ReqValidator = require('../utils/validator')
 const db = require('../db/models')
 
+const { Op } = require('sequelize')
+const moment = require('moment')
+
 exports.createTrainingSession = async (req, res, next) => {
   try {
     const valid = await ReqValidator.validate(req, res, {
@@ -105,14 +108,18 @@ exports.updateSession = async (req, res, next) => {
       },
       order: [['id', 'DESC']],
       limit,
+      include: [
+        {
+          model: db.TrainingSession
+        }
+      ],
       offset
     })
 
     const response2 = memberBookingService.getPagingData(dataOne, page, limit)
     res.status(200).json({ response, response2 })
-
-    console.log('Hey')
   } catch (err) {
+    res.status(400).json({ message: err.message })
     next(err)
   }
 }
@@ -197,6 +204,11 @@ exports.getTrainingSessions = async (req, res, next) => {
   const { limit, offset } = trainingSessionService.getPagination(page, size)
   db.TrainingSession.findAndCountAll({
     limit,
+    where: {
+      startTime: {
+        [Op.gte]: moment()
+      }
+    },
     offset
   })
     .then(data => {

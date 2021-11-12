@@ -96,6 +96,11 @@ exports.getBookingHistory = async (req, res, next) => {
     where: {
       memberId: memberId
     },
+    include: [
+      {
+        model: db.TrainingSession
+      }
+    ],
     order: [['id', 'DESC']],
     limit,
     offset
@@ -138,30 +143,48 @@ exports.cancelBooking = async (req, res, next) => {
     }
 
     // check if session in available
-    const session = await db.MemberBooking.findOne({
+    const booking = await db.MemberBooking.findOne({
       where: {
         id: data.bookingId
       },
       include: [{ model: db.TrainingSession }],
       transaction
     })
-    if (!session) {
-      throw new Error('This session does not exist')
+    if (!booking) {
+      throw new Error('This booking does not exist')
     }
 
-    await session.update(
+    await booking.update(
       {
         status: 'CANCELLED'
       },
       { transaction }
     )
 
-    await transaction.commit()
+    const newSessionId = booking.TrainingSession.id
+    let sessionItem = await db.TrainingSession.findOne({
+      where: { id: newSessionId },
+      transaction
+    })
+
+    if (sessionItem) {
+      await sessionItem.update(
+        {
+          membersSoFar: sessionItem.membersSoFar - 1
+        },
+        { transaction }
+      )
+    }
 
     db.MemberBooking.findAndCountAll({
       where: {
-        memberId: session.memberId
+        memberId: booking.memberId
       },
+      include: [
+        {
+          model: db.TrainingSession
+        }
+      ],
       order: [['id', 'DESC']],
       limit,
       offset
@@ -177,6 +200,7 @@ exports.cancelBooking = async (req, res, next) => {
         })
         next(err)
       })
+    await transaction.commit()
   } catch (err) {
     next(err)
   }

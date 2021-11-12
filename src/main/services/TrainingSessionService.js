@@ -96,6 +96,7 @@ exports.updateSession = async (userId, newSession, quantity) => {
     if (!session) {
       throw new Error('This session does not exist')
     }
+
     if (session.maxMembers - session.membersSoFar < quantity) {
       throw new Error('This session is already full.')
     }
