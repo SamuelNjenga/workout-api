@@ -88,3 +88,12 @@ exports.getMemberPayments = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.totalAmount = async (req, res, next) => {
+  try {
+    const response = await memberPaymentService.totalAmount()
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}

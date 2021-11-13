@@ -1,4 +1,5 @@
 const db = require('../db/models/index')
+const { sequelize } = require('../db/models/index')
 
 exports.createMemberPayment = async data => {
   return db.MemberPayment.create(data)
@@ -31,4 +32,17 @@ exports.getMemberPayments = async () => {
 
 exports.deleteMemberPayment = async data => {
   return db.MemberPayment.destroy(data)
+}
+
+exports.totalAmount = async () => {
+  try {
+    const totalAmount = await db.MemberPayment.findAll({
+      attributes: [
+        [sequelize.fn('sum', sequelize.col('amount')), 'total_amount']
+      ]
+    })
+    return totalAmount
+  } catch (e) {
+    throw e
+  }
 }
