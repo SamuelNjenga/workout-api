@@ -52,6 +52,20 @@ exports.deleteUser = async data => {
   return db.User.destroy(data)
 }
 
+exports.totalUsers = async () => {
+  try {
+    const totalUsers = await db.User.findAll({
+      attributes: [
+        [sequelize.fn('count', sequelize.col('email')), 'total_users']
+      ]
+    })
+    return totalUsers
+  } catch (e) {
+    throw e
+  }
+}
+
+
 exports.sendForgotPasswordEmail = async (user, token) => {
   const m = new Mailer()
   await m.send({

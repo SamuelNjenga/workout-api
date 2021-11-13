@@ -233,3 +233,12 @@ exports.getUserByPk = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.totalUsers = async (req, res, next) => {
+  try {
+    const response = await authService.totalUsers()
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
