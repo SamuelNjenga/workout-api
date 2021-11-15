@@ -141,16 +141,22 @@ exports.postponeSession = async (req, res, next) => {
     const data = {
       sessionId: req.body.sessionId,
       startTime: req.body.startTime,
-      endTime: req.body.endTime
+      endTime: req.body.endTime,
+      roomId: req.body.roomId,
+      trainerId: req.body.trainerId
     }
     const response = await trainingSessionService.postponeSession(
       data.sessionId,
       data.startTime,
-      data.endTime
+      data.endTime,
+      data.roomId,
+      data.trainerId
     )
     res.status(200).json(response)
   } catch (err) {
-    next(err)
+    res.status(500).json({ message: err.message })
+    console.error('Err', err.message)
+    next({ message: err.message })
   }
 }
 

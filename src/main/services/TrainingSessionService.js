@@ -7,33 +7,83 @@ exports.createTrainingSession = async data => {
     include: [{ model: db.Room }]
   })
   for (let i = 0; i < sessions.length; i++) {
-    console.log('S LENGTH', sessions.length)
-    console.log('Session  Start Time', sessions[i].startTime, data.startTime)
-
     if (
-      moment(sessions[i].startTime).format() ===
-        moment(data.startTime).format() &&
-      sessions[i].roomId === +data.roomId &&
-      sessions[i].Room.available === false
+      moment(sessions[i].startTime).format() === moment(data.startTime).format()
     ) {
-      throw new Error('This room is in use between ')
+      if (
+        sessions[i].roomId === +data.roomId &&
+        sessions[i].Room.available === false
+      ) {
+        throw new Error(
+          `This room is in use between ${moment(sessions[i].startTime).format(
+            'MMMM Do YYYY, h:mm:ss a'
+          )} and ${moment(sessions[i].endTime).format(
+            'MMMM Do YYYY, h:mm:ss a'
+          )}`
+        )
+      }
+      if (sessions[i].trainerId === +data.trainerId) {
+        throw new Error(
+          `This trainer has a session between ${moment(
+            sessions[i].startTime
+          ).format('MMMM Do YYYY, h:mm:ss a')} and ${moment(
+            sessions[i].endTime
+          ).format('MMMM Do YYYY, h:mm:ss a')}`
+        )
+      }
     }
     if (
       moment(data.endTime).format() >= moment(sessions[i].startTime).format() &&
-      moment(data.endTime).format() <= moment(sessions[i].endTime).format() &&
-      sessions[i].roomId === +data.roomId &&
-      sessions[i].Room.available === false
+      moment(data.endTime).format() <= moment(sessions[i].endTime).format()
     ) {
-      throw new Error('This room is in use between 1')
+      if (
+        sessions[i].roomId === +data.roomId &&
+        sessions[i].Room.available === false
+      ) {
+        throw new Error(
+          `This room is in use between ${moment(sessions[i].startTime).format(
+            'MMMM Do YYYY, h:mm:ss a'
+          )} and ${moment(sessions[i].endTime).format(
+            'MMMM Do YYYY, h:mm:ss a'
+          )}`
+        )
+      }
+      if (sessions[i].trainerId === +data.trainerId) {
+        throw new Error(
+          `This trainer has a session between ${moment(
+            sessions[i].startTime
+          ).format('MMMM Do YYYY, h:mm:ss a')} and ${moment(
+            sessions[i].endTime
+          ).format('MMMM Do YYYY, h:mm:ss a')}`
+        )
+      }
     }
     if (
       moment(data.startTime).format() >=
         moment(sessions[i].startTime).format() &&
-      moment(data.startTime).format() <= moment(sessions[i].endTime).format() &&
-      sessions[i].roomId === +data.roomId &&
-      sessions[i].Room.available === false
+      moment(data.startTime).format() <= moment(sessions[i].endTime).format()
     ) {
-      throw new Error('This room is in use between 2')
+      if (
+        sessions[i].roomId === +data.roomId &&
+        sessions[i].Room.available === false
+      ) {
+        throw new Error(
+          `This room is in use between ${moment(sessions[i].startTime).format(
+            'MMMM Do YYYY, h:mm:ss a'
+          )} and ${moment(sessions[i].endTime).format(
+            'MMMM Do YYYY, h:mm:ss a'
+          )}`
+        )
+      }
+      if (sessions[i].trainerId === +data.trainerId) {
+        throw new Error(
+          `This trainer has a session between ${moment(
+            sessions[i].startTime
+          ).format('MMMM Do YYYY, h:mm:ss a')} and ${moment(
+            sessions[i].endTime
+          ).format('MMMM Do YYYY, h:mm:ss a')}`
+        )
+      }
     }
   }
 
@@ -149,7 +199,7 @@ exports.endSession = async sessionId => {
       },
       { transaction }
     )
-    const roomId = session.id
+    const roomId = session.roomId
     const room = await db.Room.findByPk(roomId, {
       transaction
     })
@@ -167,7 +217,7 @@ exports.endSession = async sessionId => {
   }
 }
 
-exports.postponeSession = async (sessionId, startTime, endTime) => {
+exports.postponeSession = async (sessionId, startTime, endTime, roomId,trainerId) => {
   const transaction = await sequelize.transaction()
   try {
     // check if session in available
@@ -180,10 +230,98 @@ exports.postponeSession = async (sessionId, startTime, endTime) => {
     if (session.startTime < new Date()) {
       throw new Error('This session has already elapsed.')
     }
+
+    const sessions = await db.TrainingSession.findAll({
+      include: [{ model: db.Room }]
+    })
+
+    for (let i = 0; i < sessions.length; i++) {
+      if (
+        moment(sessions[i].startTime).format() === moment(startTime).format()
+      ) {
+        if (
+          sessions[i].roomId === +roomId &&
+          sessions[i].Room.available === false
+        ) {
+          throw new Error(
+            `This room is in use between ${moment(sessions[i].startTime).format(
+              'MMMM Do YYYY, h:mm:ss a'
+            )} and ${moment(sessions[i].endTime).format(
+              'MMMM Do YYYY, h:mm:ss a'
+            )}`
+          )
+        }
+        if (sessions[i].trainerId === +trainerId) {
+          throw new Error(
+            `This trainer has a session between ${moment(
+              sessions[i].startTime
+            ).format('MMMM Do YYYY, h:mm:ss a')} and ${moment(
+              sessions[i].endTime
+            ).format('MMMM Do YYYY, h:mm:ss a')}`
+          )
+        }
+      }
+      if (
+        moment(endTime).format() >=
+          moment(sessions[i].startTime).format() &&
+        moment(endTime).format() <= moment(sessions[i].endTime).format()
+      ) {
+        if (
+          sessions[i].roomId === +roomId &&
+          sessions[i].Room.available === false
+        ) {
+          throw new Error(
+            `This room is in use between ${moment(sessions[i].startTime).format(
+              'MMMM Do YYYY, h:mm:ss a'
+            )} and ${moment(sessions[i].endTime).format(
+              'MMMM Do YYYY, h:mm:ss a'
+            )}`
+          )
+        }
+        if (sessions[i].trainerId === +trainerId) {
+          throw new Error(
+            `This trainer has a session between ${moment(
+              sessions[i].startTime
+            ).format('MMMM Do YYYY, h:mm:ss a')} and ${moment(
+              sessions[i].endTime
+            ).format('MMMM Do YYYY, h:mm:ss a')}`
+          )
+        }
+      }
+      if (
+        moment(startTime).format() >=
+          moment(sessions[i].startTime).format() &&
+        moment(startTime).format() <= moment(sessions[i].endTime).format()
+      ) {
+        if (
+          sessions[i].roomId === +roomId &&
+          sessions[i].Room.available === false
+        ) {
+          throw new Error(
+            `This room is in use between ${moment(sessions[i].startTime).format(
+              'MMMM Do YYYY, h:mm:ss a'
+            )} and ${moment(sessions[i].endTime).format(
+              'MMMM Do YYYY, h:mm:ss a'
+            )}`
+          )
+        }
+        if (sessions[i].trainerId === +trainerId) {
+          throw new Error(
+            `This trainer has a session between ${moment(
+              sessions[i].startTime
+            ).format('MMMM Do YYYY, h:mm:ss a')} and ${moment(
+              sessions[i].endTime
+            ).format('MMMM Do YYYY, h:mm:ss a')}`
+          )
+        }
+      }
+    }
+
     await session.update(
       {
         startTime: startTime,
-        endTime: endTime
+        endTime: endTime,
+        roomId: roomId
       },
       { transaction }
     )
@@ -219,7 +357,8 @@ exports.cancelSession = async sessionId => {
   const transaction = await sequelize.transaction()
   try {
     // check if session in available
-    const session = await db.TrainingSession.findByPk(sessionId, {
+    console.log(sessionId, typeof +sessionId)
+    const session = await db.TrainingSession.findByPk(+sessionId, {
       transaction
     })
     if (!session) {
@@ -235,7 +374,7 @@ exports.cancelSession = async sessionId => {
       },
       { transaction }
     )
-    const roomId = session.id
+    const roomId = session.roomId
     const room = await db.Room.findByPk(roomId, {
       transaction
     })
