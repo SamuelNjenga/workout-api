@@ -242,3 +242,12 @@ exports.totalUsers = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.totalUsersByCategory = async (req, res, next) => {
+  try {
+    const response = await authService.totalUserCategories()
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}

@@ -11,6 +11,7 @@ router.post('/forgot-password', authController.forgotPassword)
 router.post('/forgot-password-change', authController.changeForgottenPassword)
 router.get('/', authController.getUsers)
 router.get('/total', authController.totalUsers)
+router.get('/total/categories', authController.totalUsersByCategory)
 router.delete('/:id', authentication, authorization, authController.deleteUser)
 router.put('/:id', authController.updateUser)
 

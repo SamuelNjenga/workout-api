@@ -65,6 +65,21 @@ exports.totalUsers = async () => {
   }
 }
 
+exports.totalUserCategories = async () => {
+  try {
+    const totalUsers = await db.User.findAll({
+      attributes: [
+        'roleId',
+        [sequelize.fn('count', sequelize.col('email')), 'total_count']
+      ],
+      group: ['roleId'],
+      include: [db.Role]
+    })
+    return totalUsers
+  } catch (e) {
+    throw e
+  }
+}
 
 exports.sendForgotPasswordEmail = async (user, token) => {
   const m = new Mailer()
