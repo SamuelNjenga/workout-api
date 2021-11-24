@@ -98,7 +98,8 @@ exports.getBookingHistory = async (req, res, next) => {
     },
     include: [
       {
-        model: db.TrainingSession
+        model: db.TrainingSession,
+        include: [db.ServiceType]
       }
     ],
     order: [['id', 'DESC']],
@@ -161,12 +162,13 @@ exports.cancelBooking = async (req, res, next) => {
       { transaction }
     )
 
+    console.log('HIT CANCEL')
     const newSessionId = booking.TrainingSession.id
     let sessionItem = await db.TrainingSession.findOne({
       where: { id: newSessionId },
       transaction
     })
-
+    console.log('HIT CANCELL')
     if (sessionItem) {
       await sessionItem.update(
         {
@@ -176,30 +178,136 @@ exports.cancelBooking = async (req, res, next) => {
       )
     }
 
-    db.MemberBooking.findAndCountAll({
+    // db.MemberBooking.findAndCountAll({
+    //   where: {
+    //     memberId: booking.memberId
+    //   },
+    //   include: [
+    //     {
+    //       model: db.TrainingSession,
+    //       include: [db.ServiceType]
+    //     }
+    //   ],
+    //   order: [['id', 'DESC']],
+    //   limit,
+    //   offset
+    // })
+    //   .then(data => {
+    //     const response = memberBookingService.getPagingData(data, pageId, limit)
+    //     res.status(200).json(response)
+    //   })
+    //   .catch(err => {
+    //     res.status(500).send({
+    //       message:
+    //         'Server error occurred while retrieving the wishlists.Try again.'
+    //     })
+    //     next(err)
+    //   })
+
+    console.log('HIT CANCELLL', booking.memberId)
+    const response3 = await db.MemberBooking.findAll({
       where: {
         memberId: booking.memberId
       },
-      include: [
-        {
-          model: db.TrainingSession
-        }
-      ],
+      transaction
+    })
+
+    const dataOne = await db.MemberBooking.findAndCountAll({
+      where: {
+        memberId: booking.memberId
+      },
       order: [['id', 'DESC']],
       limit,
-      offset
+      include: [
+        {
+          model: db.TrainingSession,
+          include: [db.ServiceType]
+        }
+      ],
+      offset,
+      transaction
     })
-      .then(data => {
-        const response = memberBookingService.getPagingData(data, pageId, limit)
-        res.status(200).json(response)
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
-            'Server error occurred while retrieving the wishlists.Try again.'
-        })
-        next(err)
-      })
+
+    const response2 = memberBookingService.getPagingData(dataOne, pageId, limit)
+    res.status(200).json({ response3, response2 })
+
+    await transaction.commit()
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.bookAgain = async (req, res, next) => {
+  const transaction = await sequelize.transaction()
+  const { size } = req.query
+  const pageId = req.body.page
+  const { limit, offset } = memberBookingService.getPagination(pageId, size)
+
+  try {
+    const data = {
+      bookingId: req.body.bookingId
+    }
+
+    // check if session in available
+    const booking = await db.MemberBooking.findOne({
+      where: {
+        id: data.bookingId
+      },
+      include: [{ model: db.TrainingSession }],
+      transaction
+    })
+    if (!booking) {
+      throw new Error('This booking does not exist')
+    }
+
+    await booking.update(
+      {
+        status: 'BOOKED'
+      },
+      { transaction }
+    )
+
+    const newSessionId = booking.TrainingSession.id
+    let sessionItem = await db.TrainingSession.findOne({
+      where: { id: newSessionId },
+      transaction
+    })
+
+    if (sessionItem) {
+      await sessionItem.update(
+        {
+          membersSoFar: sessionItem.membersSoFar + 1
+        },
+        { transaction }
+      )
+    }
+
+    const response3 = await db.MemberBooking.findAll({
+      where: {
+        memberId: booking.memberId
+      },
+      transaction
+    })
+
+    const dataOne = await db.MemberBooking.findAndCountAll({
+      where: {
+        memberId: booking.memberId
+      },
+      order: [['id', 'DESC']],
+      limit,
+      include: [
+        {
+          model: db.TrainingSession,
+          include: [db.ServiceType]
+        }
+      ],
+      offset,
+      transaction
+    })
+
+    const response2 = memberBookingService.getPagingData(dataOne, pageId, limit)
+    res.status(200).json({ response3, response2 })
+
     await transaction.commit()
   } catch (err) {
     next(err)

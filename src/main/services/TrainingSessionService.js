@@ -131,7 +131,7 @@ exports.getSession = async userId => {
     where: {
       memberId: userId
     },
-    include: [{ model: db.TrainingSession }]
+    include: [{ model: db.TrainingSession, include: [db.ServiceType] }]
   })
 }
 
@@ -217,7 +217,13 @@ exports.endSession = async sessionId => {
   }
 }
 
-exports.postponeSession = async (sessionId, startTime, endTime, roomId,trainerId) => {
+exports.postponeSession = async (
+  sessionId,
+  startTime,
+  endTime,
+  roomId,
+  trainerId
+) => {
   const transaction = await sequelize.transaction()
   try {
     // check if session in available
@@ -262,8 +268,7 @@ exports.postponeSession = async (sessionId, startTime, endTime, roomId,trainerId
         }
       }
       if (
-        moment(endTime).format() >=
-          moment(sessions[i].startTime).format() &&
+        moment(endTime).format() >= moment(sessions[i].startTime).format() &&
         moment(endTime).format() <= moment(sessions[i].endTime).format()
       ) {
         if (
@@ -289,8 +294,7 @@ exports.postponeSession = async (sessionId, startTime, endTime, roomId,trainerId
         }
       }
       if (
-        moment(startTime).format() >=
-          moment(sessions[i].startTime).format() &&
+        moment(startTime).format() >= moment(sessions[i].startTime).format() &&
         moment(startTime).format() <= moment(sessions[i].endTime).format()
       ) {
         if (

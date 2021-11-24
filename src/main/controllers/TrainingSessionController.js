@@ -110,7 +110,8 @@ exports.updateSession = async (req, res, next) => {
       limit,
       include: [
         {
-          model: db.TrainingSession
+          model: db.TrainingSession,
+          include: [db.ServiceType]
         }
       ],
       offset
