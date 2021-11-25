@@ -114,7 +114,7 @@ exports.updateUser = async (req, res, next) => {
       gender: req.body.gender,
       //roleId: req.body.roleId
       //roleId: data.roleId || 3
-      roleId: 3
+      roleId: req.body.roleId
     }
 
     const newUser = {
@@ -124,7 +124,7 @@ exports.updateUser = async (req, res, next) => {
       phoneNumber: data.phoneNumber,
       // password: hashedPassword,
       gender: data.gender,
-      roleId: 3
+      roleId: data.roleId
     }
     const userId = req.params.id
     await authService.updateUser(newUser, {
