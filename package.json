@@ -26,6 +26,7 @@
     "node-input-validator": "^4.4.1",
     "nodemailer": "^6.6.3",
     "sequelize": "^6.6.5",
+    "twilio": "^3.71.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
