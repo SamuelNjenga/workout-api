@@ -1,6 +1,7 @@
 const db = require('../db/models/index')
 const { sequelize } = require('../db/models/index')
 const moment = require('moment')
+const sendSms = require('../utils/twilio')
 
 exports.createTrainingSession = async data => {
   const sessions = await db.TrainingSession.findAll({
@@ -362,9 +363,12 @@ exports.cancelSession = async sessionId => {
   try {
     // check if session in available
     console.log(sessionId, typeof +sessionId)
-    const session = await db.TrainingSession.findByPk(+sessionId, {
-      transaction
-    })
+    const session = await db.TrainingSession.findOne(
+      { where: { id: +sessionId }, include: [{ model: db.ServiceType }] },
+      {
+        transaction
+      }
+    )
     if (!session) {
       throw new Error('This session does not exist')
     }
@@ -387,6 +391,11 @@ exports.cancelSession = async sessionId => {
         available: 1
       },
       { transaction }
+    )
+
+    sendSms(
+      '+254740700076',
+      `Session Id ${session.id} and of ServiceType ${session.ServiceType.name} has been cancelled.`
     )
 
     await transaction.commit()
