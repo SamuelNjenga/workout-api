@@ -5,6 +5,7 @@ const router = Router()
 
 router.post('/', memberPaymentController.createMemberPayment)
 router.get('/', memberPaymentController.getMemberPayments)
+router.post('/search', memberPaymentController.getSearchedPayments)
 router.get('/amount', memberPaymentController.totalAmount)
 router.delete('/:id', memberPaymentController.deleteMemberPayment)
 router.put('/:id', memberPaymentController.updateMemberPayment)

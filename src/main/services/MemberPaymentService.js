@@ -1,5 +1,7 @@
 const db = require('../db/models/index')
 const { sequelize } = require('../db/models/index')
+const moment = require('moment')
+const { Op } = require('sequelize')
 
 exports.createMemberPayment = async data => {
   return db.MemberPayment.create(data)
@@ -26,6 +28,21 @@ exports.getPagingData = (data, page, limit) => {
 
 exports.getMemberPayments = async () => {
   return db.MemberPayment.findAndCountAll({
+    include: db.MemberRegistration
+  })
+}
+
+exports.getSearchedPayments = async (memberId, fromTime, toTime) => {
+  return db.MemberPayment.findAll({
+    where: {
+      memberId:+memberId,
+      from: {
+        [Op.gte]: fromTime
+      },
+      to: {
+        [Op.lte]: toTime
+      }
+    },
     include: db.MemberRegistration
   })
 }

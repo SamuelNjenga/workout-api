@@ -89,6 +89,28 @@ exports.getMemberPayments = async (req, res, next) => {
   }
 }
 
+exports.getSearchedPayments = async (req, res, next) => {
+  const data = {
+    memberId: req.body.memberId,
+    fromTime: req.body.fromTime,
+    toTime: req.body.toTime
+  }
+
+  try {
+    const payments = await memberPaymentService.getSearchedPayments(
+      data.memberId,
+      data.fromTime,
+      data.toTime
+    )
+    res.status(200).json(payments)
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}
+
 exports.totalAmount = async (req, res, next) => {
   try {
     const response = await memberPaymentService.totalAmount()
