@@ -35,7 +35,7 @@ exports.getMemberPayments = async () => {
 exports.getSearchedPayments = async (memberId, fromTime, toTime) => {
   return db.MemberPayment.findAll({
     where: {
-      memberId:+memberId,
+      memberId: +memberId,
       from: {
         [Op.gte]: fromTime
       },

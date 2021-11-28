@@ -228,15 +228,23 @@ exports.postponeSession = async (
   const transaction = await sequelize.transaction()
   try {
     // check if session in available
-    const session = await db.TrainingSession.findByPk(sessionId, {
-      transaction
-    })
+    const session = await db.TrainingSession.findOne(
+      { where: { id: +sessionId }, include: [{ model: db.ServiceType }] },
+      {
+        transaction
+      }
+    )
     if (!session) {
       throw new Error('This session does not exist')
     }
     if (session.startTime < new Date()) {
       throw new Error('This session has already elapsed.')
     }
+
+    let duplicateSession = JSON.parse(JSON.stringify(session));
+
+    console.log(session.startTime)
+    console.log(duplicateSession.startTime)
 
     const sessions = await db.TrainingSession.findAll({
       include: [{ model: db.Room }]
@@ -330,6 +338,22 @@ exports.postponeSession = async (
       },
       { transaction }
     )
+
+    sendSms(
+      '+254740700076',
+      `Session Id ${duplicateSession.id} and of ServiceType ${
+        duplicateSession.ServiceType.name
+      } which was to take place from ${moment(duplicateSession.startTime).format(
+        'MMMM Do YYYY, h:mm:ss a'
+      )} to ${moment(duplicateSession.endTime).format(
+        'MMMM Do YYYY, h:mm:ss a'
+      )} has been postponed and will now start from ${moment(
+        session.startTime
+      ).format('MMMM Do YYYY, h:mm:ss a')} up to ${moment(
+        session.endTime
+      ).format('MMMM Do YYYY, h:mm:ss a')}`
+    )
+
     await transaction.commit()
     //return this.getSession(userId)
   } catch (e) {
@@ -395,7 +419,13 @@ exports.cancelSession = async sessionId => {
 
     sendSms(
       '+254740700076',
-      `Session Id ${session.id} and of ServiceType ${session.ServiceType.name} has been cancelled.`
+      `Session Id ${session.id} and of ServiceType ${
+        session.ServiceType.name
+      } which was to take place from ${moment(session.startTime).format(
+        'MMMM Do YYYY, h:mm:ss a'
+      )} to ${moment(session.endTime).format(
+        'MMMM Do YYYY, h:mm:ss a'
+      )} has been cancelled.`
     )
 
     await transaction.commit()
