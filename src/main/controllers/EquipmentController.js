@@ -63,13 +63,47 @@ exports.deleteEquipment = async (req, res, next) => {
 }
 
 exports.getEquipment = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = equipmentService.getPagination(page, size)
+
   try {
     const equipment = await equipmentService.getEquipment()
-    res.status(200).json(equipment)
+    const updatedEquipments = equipmentService.getPagingData(
+      equipment,
+      page,
+      limit
+    )
+    res.status(200).json(updatedEquipments)
   } catch (err) {
     res.json({
       message: err
     })
+    next(err)
+  }
+}
+
+exports.diactivateEquipment = async (req, res, next) => {
+  try {
+    const data = {
+      equipmentId: req.body.equipmentId
+    }
+    const response = await equipmentService.diactivateEquipment(
+      data.equipmentId
+    )
+    res.status(200).json(response)
+  } catch (err) {
+    next(err)
+  }
+}
+
+exports.activateEquipment = async (req, res, next) => {
+  try {
+    const data = {
+      equipmentId: req.body.equipmentId
+    }
+    const response = await equipmentService.activateEquipment(data.equipmentId)
+    res.status(200).json(response)
+  } catch (err) {
     next(err)
   }
 }

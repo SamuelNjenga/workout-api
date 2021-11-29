@@ -246,3 +246,15 @@ exports.getAdminTrainingSessions = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.totalSessionsPerRoom = async (req, res, next) => {
+  try {
+    const {
+      totalSessions,
+      totalNumber
+    } = await trainingSessionService.totalSessionsPerRoom()
+    res.status(200).json({ totalSessions, totalNumber })
+  } catch (err) {
+    next(err)
+  }
+}

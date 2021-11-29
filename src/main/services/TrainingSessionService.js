@@ -241,7 +241,7 @@ exports.postponeSession = async (
       throw new Error('This session has already elapsed.')
     }
 
-    let duplicateSession = JSON.parse(JSON.stringify(session));
+    let duplicateSession = JSON.parse(JSON.stringify(session))
 
     console.log(session.startTime)
     console.log(duplicateSession.startTime)
@@ -343,9 +343,11 @@ exports.postponeSession = async (
       '+254740700076',
       `Session Id ${duplicateSession.id} and of ServiceType ${
         duplicateSession.ServiceType.name
-      } which was to take place from ${moment(duplicateSession.startTime).format(
-        'MMMM Do YYYY, h:mm:ss a'
-      )} to ${moment(duplicateSession.endTime).format(
+      } which was to take place from ${moment(
+        duplicateSession.startTime
+      ).format('MMMM Do YYYY, h:mm:ss a')} to ${moment(
+        duplicateSession.endTime
+      ).format(
         'MMMM Do YYYY, h:mm:ss a'
       )} has been postponed and will now start from ${moment(
         session.startTime
@@ -432,6 +434,34 @@ exports.cancelSession = async sessionId => {
     //return this.getSession(userId)
   } catch (e) {
     transaction.rollback()
+    throw e
+  }
+}
+
+exports.totalSessionsPerRoom = async () => {
+  try {
+    const totalSessions = await db.TrainingSession.findAll({
+      attributes: [
+        'roomId',
+        [
+          sequelize.fn('count', sequelize.col('TrainingSession.id')),
+          'total_count'
+        ]
+      ],
+      group: ['roomId'],
+      include: [db.Room]
+    })
+    const totalNumber = await db.TrainingSession.findAll({
+      attributes: [
+        [
+          sequelize.fn('count', sequelize.col('TrainingSession.id')),
+          'total_number'
+        ]
+      ]
+    })
+
+    return { totalSessions, totalNumber }
+  } catch (e) {
     throw e
   }
 }
