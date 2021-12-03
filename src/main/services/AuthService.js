@@ -44,6 +44,7 @@ exports.getUser = async data => {
   return db.User.findOne(data)
 }
 
+
 exports.getUserByPk = async data => {
   return db.User.findByPk(data)
 }

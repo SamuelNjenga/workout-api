@@ -106,3 +106,20 @@ exports.getMembers = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.getMemberDetails = async (req, res, next) => {
+  const data = {
+    memberId: req.body.memberId
+  }
+  try {
+    const memberDetails = await memberRegistrationService.getMemberDetails(
+      data.memberId
+    )
+    res.status(200).json(memberDetails)
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}

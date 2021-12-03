@@ -104,6 +104,15 @@ exports.getMembers = async () => {
   return db.MemberRegistration.findAndCountAll()
 }
 
+exports.getMemberDetails = async memberId => {
+  return db.MemberRegistration.findOne({
+    where: {
+      id: memberId
+    },
+    include: db.User
+  })
+}
+
 exports.deleteMemberRegistration = async data => {
   return db.MemberRegistration.destroy(data)
 }

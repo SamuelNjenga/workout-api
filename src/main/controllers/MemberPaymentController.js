@@ -111,6 +111,49 @@ exports.getSearchedPayments = async (req, res, next) => {
   }
 }
 
+exports.getFilteredPayments = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = memberPaymentService.getPagination(page, size)
+
+  const data = {
+    fromTime: req.body.fromTime,
+    toTime: req.body.toTime
+  }
+
+  try {
+    const payments = await memberPaymentService.getFilteredPayments(
+      data.fromTime,
+      data.toTime
+    )
+    const {
+      totalPayments,
+      totalAmount,
+      totalMembers
+    } = await memberPaymentService.getFilteredTotalPayments(
+      data.fromTime,
+      data.toTime
+    )
+    const updatedPayments = memberPaymentService.getPagingData(
+      payments,
+      page,
+      limit
+    )
+    const updatedTotals = memberPaymentService.getPagingData(
+      totalPayments,
+      page,
+      limit
+    )
+    res
+      .status(200)
+      .json({ updatedPayments, updatedTotals, totalAmount, totalMembers })
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}
+
 exports.totalAmount = async (req, res, next) => {
   try {
     const response = await memberPaymentService.totalAmount()

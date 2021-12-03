@@ -47,6 +47,75 @@ exports.getSearchedPayments = async (memberId, fromTime, toTime) => {
   })
 }
 
+exports.getFilteredPayments = async (fromTime, toTime) => {
+  return db.MemberPayment.findAndCountAll({
+    where: {
+      from: {
+        [Op.gte]: fromTime
+      },
+      to: {
+        [Op.lte]: toTime
+      }
+    },
+    include: db.MemberRegistration
+  })
+}
+
+exports.getFilteredTotalPayments = async (fromTime, toTime) => {
+  const totalPayments = await db.MemberPayment.findAndCountAll({
+    where: {
+      from: {
+        [Op.gte]: fromTime
+      },
+      to: {
+        [Op.lte]: toTime
+      }
+    },
+    attributes: [
+      'memberId',
+      [sequelize.fn('sum', sequelize.col('amount')), 'total_amount']
+    ],
+    group: ['memberId'],
+    include: db.MemberRegistration
+  })
+
+  const totalAmount = await db.MemberPayment.findAll({
+    where: {
+      from: {
+        [Op.gte]: fromTime
+      },
+      to: {
+        [Op.lte]: toTime
+      }
+    },
+    attributes: [
+      [
+        sequelize.fn('sum', sequelize.col('MemberPayment.amount')),
+        'total_amount'
+      ]
+    ]
+  })
+
+  const totalMembers = await db.MemberPayment.findAll({
+    where: {
+      from: {
+        [Op.gte]: fromTime
+      },
+      to: {
+        [Op.lte]: toTime
+      }
+    },
+    attributes: [
+      [
+        sequelize.fn('count', sequelize.col('MemberPayment.memberId')),
+        'total_members'
+      ]
+    ]
+  })
+
+  return { totalPayments, totalAmount, totalMembers }
+}
+
 exports.deleteMemberPayment = async data => {
   return db.MemberPayment.destroy(data)
 }
