@@ -20,9 +20,9 @@ exports.returnMember = async userId => {
     if (!member) {
       throw new Error('This member does not have an existing account')
     }
-    if (member.status !== 'Active') {
-      throw new Error('This member does not have an active account')
-    }
+    // if (member.status !== 'Active') {
+    //   throw new Error('This member does not have an active account')
+    // }
     await transaction.commit()
     return member.id
   } catch (e) {

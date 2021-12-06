@@ -258,3 +258,31 @@ exports.totalSessionsPerRoom = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.getFilteredTrainingSessions = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = trainingSessionService.getPagination(page, size)
+
+  const data = {
+    startTime: req.body.startTime,
+    endTime: req.body.endTime
+  }
+
+  try {
+    const sessions = await trainingSessionService.getFilteredTrainingSessions(
+      data.startTime,
+      data.endTime
+    )
+    const updatedSessions = trainingSessionService.getPagingData(
+      sessions,
+      page,
+      limit
+    )
+    res.status(200).json({ updatedSessions })
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}

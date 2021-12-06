@@ -19,8 +19,10 @@ exports.adminLogin = async (req, res, next) => {
     if (!user) throw new Error('Email does not exist')
     const validPassword = await validatePassword(password, user.password)
     if (!validPassword) throw new Error('Password is not correct')
-    if (user.roleId !== 1)
+    console.log('USER ID', user.roleId)
+    if (user.roleId === 3)
       throw new Error('Make sure you are an admin to log in')
+
     const accessToken = jwt.sign(
       {
         userId: user.id,

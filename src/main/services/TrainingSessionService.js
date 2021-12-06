@@ -1,7 +1,9 @@
 const db = require('../db/models/index')
 const { sequelize } = require('../db/models/index')
+const { Op } = require('sequelize')
 const moment = require('moment')
 const sendSms = require('../utils/twilio')
+const memberRegistrationService = require('../services/MemberRegistrationService')
 
 exports.createTrainingSession = async data => {
   const sessions = await db.TrainingSession.findAll({
@@ -150,6 +152,18 @@ exports.updateSession = async (userId, newSession, quantity) => {
 
     if (session.maxMembers - session.membersSoFar < quantity) {
       throw new Error('This session is already full.')
+    }
+
+    if (userId === null) {
+      throw new Error('Register for membership to book session.')
+    }
+
+    const memberDetails = await memberRegistrationService.getMemberDetails(
+      userId
+    )
+    
+    if (memberDetails.status === 'Not Active') {
+      throw new Error('Activate your account to book a session.')
     }
 
     // Get order
@@ -464,4 +478,18 @@ exports.totalSessionsPerRoom = async () => {
   } catch (e) {
     throw e
   }
+}
+
+exports.getFilteredTrainingSessions = async (startTime, endTime) => {
+  return db.TrainingSession.findAndCountAll({
+    where: {
+      startTime: {
+        [Op.gte]: startTime
+      },
+      endTime: {
+        [Op.lte]: endTime
+      }
+    },
+    include: db.ServiceType
+  })
 }
