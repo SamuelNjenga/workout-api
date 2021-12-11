@@ -87,16 +87,16 @@ exports.updateSession = async (req, res, next) => {
       newSession: req.body.newSession,
       quantity: req.body.quantity
     }
-
+console.log('HERE')
     await trainingSessionService.updateSession(
-      data.userId,
+      +data.userId,
       data.newSession,
       data.quantity
     )
-
+console.log('THEN')
     const response = await db.MemberBooking.findAll({
       where: {
-        memberId: data.userId
+        memberId: +data.userId
       }
     })
 
@@ -104,7 +104,7 @@ exports.updateSession = async (req, res, next) => {
 
     const dataOne = await db.MemberBooking.findAndCountAll({
       where: {
-        memberId: data.userId
+        memberId: +data.userId
       },
       order: [['id', 'DESC']],
       limit,
@@ -279,6 +279,53 @@ exports.getFilteredTrainingSessions = async (req, res, next) => {
       limit
     )
     res.status(200).json({ updatedSessions })
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}
+
+exports.assignedTrainingSessions = async (req, res, next) => {
+  const { page, size } = req.query
+  const { limit, offset } = trainingSessionService.getPagination(page, size)
+
+  const data = {
+    userId: req.body.userId,
+    startTime: req.body.startTime,
+    endTime: req.body.endTime
+  }
+
+  try {
+    const sessions = await trainingSessionService.assignedTrainingSessions(
+      data.userId,
+      data.startTime,
+      data.endTime
+    )
+    const updatedSessions = trainingSessionService.getPagingData(
+      sessions,
+      page,
+      limit
+    )
+    res.status(200).json({ updatedSessions })
+  } catch (err) {
+    res.json({
+      message: err
+    })
+    next(err)
+  }
+}
+
+exports.getTrainingSessionDetails = async (req, res, next) => {
+  const data = {
+    sessionId: req.body.sessionId
+  }
+  try {
+    const sessionDetails = await trainingSessionService.getTrainingSessionDetails(
+      data.sessionId
+    )
+    res.status(200).json(sessionDetails)
   } catch (err) {
     res.json({
       message: err

@@ -39,15 +39,15 @@ exports.adminLogin = async (req, res, next) => {
       }
     })
 
-    const memberId = await memberRegService.returnMember(user.id)
+    //const memberId = await memberRegService.returnMember(user.id)
 
     res.status(200).json({
       data: {
         email: user.email,
         roleId: user.roleId,
         firstName: user.firstName,
-        id: user.id,
-        memberId
+        lastName: user.lastName,
+        id: user.id
       },
       accessToken
     })

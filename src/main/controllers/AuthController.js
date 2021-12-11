@@ -203,12 +203,14 @@ exports.login = async (req, res, next) => {
         id: user.id
       }
     })
+    console.log('Last Name',user.firstName)
     const memberId = await memberRegService.returnMember(user.id)
     res.status(200).json({
       data: {
         email: user.email,
         roleId: user.roleId,
         firstName: user.firstName,
+        lastName: user.lastName,
         id: user.id,
         memberId
       },
@@ -216,7 +218,7 @@ exports.login = async (req, res, next) => {
     })
   } catch (error) {
     res.status(401).json({
-      message: 'This member does not have an existing account'
+      message: 'Please pay membership fee in order to log in'
     })
     next(error)
   }

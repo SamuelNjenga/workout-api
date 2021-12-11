@@ -161,7 +161,7 @@ exports.updateSession = async (userId, newSession, quantity) => {
     const memberDetails = await memberRegistrationService.getMemberDetails(
       userId
     )
-    
+
     if (memberDetails.status === 'Not Active') {
       throw new Error('Activate your account to book a session.')
     }
@@ -171,7 +171,23 @@ exports.updateSession = async (userId, newSession, quantity) => {
       memberId: userId,
       sessionId: newSession.id
     }
+
+let sessionItemOne = await db.MemberBooking.findOne({
+      where: { memberId:userId,sessionId:newSession.id, status:'CANCELLED'},
+      transaction
+    })
+    if (sessionItemOne) {
+       await sessionItemOne.update(
+        {
+          membersSoFar: sessionItemOne.membersSoFar + quantity,
+          status: 'BOOKED'
+        },
+        { transaction }
+      )
+    }
+   else{
     order = await db.MemberBooking.create(bookingData, { transaction })
+   }
 
     // Get training session
     let sessionItem = await db.TrainingSession.findOne({
@@ -489,6 +505,34 @@ exports.getFilteredTrainingSessions = async (startTime, endTime) => {
       endTime: {
         [Op.lte]: endTime
       }
+    },
+    include: db.ServiceType
+  })
+}
+
+exports.assignedTrainingSessions = async (userId, startTime, endTime) => {
+  const trainerDetails = await db.TrainerProfile.findOne({
+    where: { userId: userId }
+  })
+  console.log('TRAINER', trainerDetails.id)
+  return db.TrainingSession.findAndCountAll({
+    where: {
+      trainerId: trainerDetails.id,
+      startTime: {
+        [Op.gte]: startTime
+      },
+      endTime: {
+        [Op.lte]: endTime
+      }
+    },
+    include: db.ServiceType
+  })
+}
+
+exports.getTrainingSessionDetails = async sessionId => {
+  return db.TrainingSession.findOne({
+    where: {
+      id: sessionId
     },
     include: db.ServiceType
   })
