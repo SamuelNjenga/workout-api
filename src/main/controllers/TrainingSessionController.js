@@ -84,19 +84,21 @@ exports.updateSession = async (req, res, next) => {
   try {
     const data = {
       userId: req.body.userId,
+      memberId: req.body.memberId,
       newSession: req.body.newSession,
       quantity: req.body.quantity
     }
 console.log('HERE')
     await trainingSessionService.updateSession(
       +data.userId,
+      data.memberId,
       data.newSession,
       data.quantity
     )
 console.log('THEN')
     const response = await db.MemberBooking.findAll({
       where: {
-        memberId: +data.userId
+        memberId: +data.memberId
       }
     })
 
@@ -104,7 +106,7 @@ console.log('THEN')
 
     const dataOne = await db.MemberBooking.findAndCountAll({
       where: {
-        memberId: +data.userId
+        memberId: +data.memberId
       },
       order: [['id', 'DESC']],
       limit,

@@ -113,6 +113,15 @@ exports.getMemberDetails = async memberId => {
   })
 }
 
+exports.getMemberDetailsTwo = async userId => {
+  return db.MemberRegistration.findOne({
+    where: {
+      userId: userId
+    },
+    include: db.User
+  })
+}
+
 exports.deleteMemberRegistration = async data => {
   return db.MemberRegistration.destroy(data)
 }

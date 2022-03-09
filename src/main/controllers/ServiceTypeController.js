@@ -2,6 +2,8 @@ const serviceTypeService = require('../services/ServiceTypeService')
 const ReqValidator = require('../utils/validator')
 const db = require('../db/models')
 
+const moment = require('moment')
+const { Op } = require('sequelize')
 exports.createServiceType = async (req, res, next) => {
   try {
     const valid = await ReqValidator.validate(req, res, {
@@ -91,7 +93,11 @@ exports.getSessionsPerCategoryBasedOnName = async (req, res, next) => {
     where: { name: req.params.name },
     limit,
     offset,
-    include: [{ model: db.TrainingSession }],
+    include: [{ model: db.TrainingSession, where: {
+      startTime: {
+        [Op.gte]: moment()
+      }
+    } }],
     subQuery: false
   })
     .then(data => {

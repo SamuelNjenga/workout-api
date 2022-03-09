@@ -138,7 +138,7 @@ exports.getSession = async userId => {
   })
 }
 
-exports.updateSession = async (userId, newSession, quantity) => {
+exports.updateSession = async (userId,memberId, newSession, quantity) => {
   const transaction = await sequelize.transaction()
   try {
     // check if session in available
@@ -154,26 +154,25 @@ exports.updateSession = async (userId, newSession, quantity) => {
       throw new Error('This session is already full.')
     }
 
-    if (userId === null) {
+    if (userId === null || userId === 0) {
       throw new Error('Register for membership to book session.')
     }
-
-    const memberDetails = await memberRegistrationService.getMemberDetails(
+    console.log('K')
+    const memberDetails = await memberRegistrationService.getMemberDetailsTwo(
       userId
     )
-
     if (memberDetails.status === 'Not Active') {
       throw new Error('Activate your account to book a session.')
     }
 
     // Get order
     const bookingData = {
-      memberId: userId,
+      memberId: memberId,
       sessionId: newSession.id
     }
 
 let sessionItemOne = await db.MemberBooking.findOne({
-      where: { memberId:userId,sessionId:newSession.id, status:'CANCELLED'},
+      where: { memberId:memberId,sessionId:newSession.id, status:'CANCELLED'},
       transaction
     })
     if (sessionItemOne) {
@@ -188,7 +187,7 @@ let sessionItemOne = await db.MemberBooking.findOne({
    else{
     order = await db.MemberBooking.create(bookingData, { transaction })
    }
-
+console.log('Z')
     // Get training session
     let sessionItem = await db.TrainingSession.findOne({
       where: { id: newSession.id },
@@ -203,7 +202,7 @@ let sessionItemOne = await db.MemberBooking.findOne({
       )
     }
     await transaction.commit()
-    return this.getSession(userId)
+    return this.getSession(memberId)
   } catch (e) {
     transaction.rollback()
     throw e
